@@ -4,7 +4,7 @@
  * @abstract 解析教务系统课表页面
  * @exports parseDOMOfICS
  * @license GPLv3
- * @version 1.0
+ * @version 1.1
  * @date 2021-08-04
  */
 
@@ -70,6 +70,12 @@ function getIsDelayTest (isDelayText) {
  */
 function getWeekList (text) {
     let matchResult
+    if (matchResult = text.match(/^第(\d+)\-(\d+)周$/)) {
+        const [fullmatch, start, end] = matchResult
+        return Array.from({ // range(start, end + 1, 1)
+            "length" : end - start + 1
+        }, (v, k) => (k | 0) + (start | 0))
+    }
     if (matchResult = text.match(/^第([0-9,]+)周$/)) {
         return matchResult[1].split(",").map(e => e | 0)
     }

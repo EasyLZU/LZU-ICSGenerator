@@ -4,7 +4,7 @@
  * @abstract ICS生成
  * @exports genICS
  * @license GPLv3
- * @version 1.0
+ * @version 1.1
  * @date 2021-08-05
  */
 
@@ -115,6 +115,10 @@ function genICS (Currcourse, Calendar) {
     })
     for (const course of Currcourse.course) { // 每门课程
         for (const timeInfo of course["上课信息"]) { // 每个时间段
+            if (!timeInfo.weeklist || !timeInfo.weekday || !timeInfo.lesson) {
+                // 课程时间不完整
+                continue
+            }
             const {
                 start : startTime,
                 end : endTime,

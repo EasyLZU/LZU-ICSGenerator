@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         课表ICS生成(EasyLZU)
 // @namespace    https://easylzu.york.moe/
-// @version      1.0
+// @version      1.1
 // @description  兰州大学教务系统课表ICS日历文件生成
 // @author       MaPl
 // @match        http://jwk.lzu.edu.cn/academic/student/currcourse/currcourse.jsdo*
@@ -13,7 +13,7 @@
  * @abstract 解析教务系统课表页面
  * @exports parseDOMOfICS
  * @license GPLv3
- * @version 1.0
+ * @version 1.1
  * @date 2021-08-04
  */
 
@@ -79,6 +79,12 @@ function getIsDelayTest (isDelayText) {
  */
 function getWeekList (text) {
     let matchResult
+    if (matchResult = text.match(/^第(\d+)\-(\d+)周$/)) {
+        const [fullmatch, start, end] = matchResult
+        return Array.from({ // range(start, end + 1, 1)
+            "length" : end - start + 1
+        }, (v, k) => (k | 0) + (start | 0))
+    }
     if (matchResult = text.match(/^第([0-9,]+)周$/)) {
         return matchResult[1].split(",").map(e => e | 0)
     }
@@ -397,7 +403,7 @@ class ICSBlock extends Map {
  * @abstract ICS生成
  * @exports genICS
  * @license GPLv3
- * @version 1.0
+ * @version 1.1
  * @date 2021-08-05
  */
 
@@ -508,6 +514,10 @@ function genICS (Currcourse, Calendar) {
     })
     for (const course of Currcourse.course) { // 每门课程
         for (const timeInfo of course["上课信息"]) { // 每个时间段
+            if (!timeInfo.weeklist || !timeInfo.weekday || !timeInfo.lesson) {
+                // 课程时间不完整
+                continue
+            }
             const {
                 start : startTime,
                 end : endTime,
