@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         课表ICS生成(EasyLZU)
 // @namespace    https://easylzu.york.moe/
-// @version      2.0
+// @version      2.1
 // @description  兰州大学教务系统课表ICS日历文件生成
 // @author       MaPl
 // @match        http://jwk.lzu.edu.cn/academic/student/currcourse/currcourse.jsdo*
@@ -549,7 +549,7 @@ function genICS (Currcourse, Calendar) {
  * @abstract 注入页面脚本
  * @exports modifyHTML, getDOMOfCal, downloadBlob
  * @license GPLv3
- * @version 2.0
+ * @version 2.1
  * @date 2021-08-05
  */
 
@@ -605,6 +605,7 @@ function getDOMOfCal () {
  */
 function makeTableColEditable (table, col) {
     const rowLen = table.rows.length
+    table.rows[0].cells[col].innerText += "(可编辑)"
     for (let index = 1; index < rowLen; index++) {
         table.rows[index].cells[col].innerText = table.rows[index].cells[col].innerText
         table.rows[index].cells[col].contentEditable = true
