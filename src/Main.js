@@ -1,4 +1,4 @@
-const button = modifyHTML()
+const button = modifyHTML('课表导出助手')
 button.addEventListener("click", (event) => {
     getDOMOfCal().then((calDOM) => {
         const Currcourse = parseDOMOfICS(document)

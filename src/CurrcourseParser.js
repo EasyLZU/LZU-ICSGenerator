@@ -4,7 +4,7 @@
  * @abstract 解析教务系统课表页面
  * @exports parseDOMOfICS
  * @license GPLv3
- * @version 1.1
+ * @version 2.0
  * @date 2021-08-04
  */
 
@@ -143,7 +143,7 @@ function parseCourseTable (domTable) {
         const courseInfo = { // 按列提取信息
             "课程号" : row.cells[0].innerText,
             "课程序号" : row.cells[1].innerText | 0,
-            "课程名称" : row.cells[2].innerText,
+            "课程名称" : row.cells[2].innerText.trim(),
             "任课教师" : getTeachersList(row.cells[3].innerText),
             "学分" : row.cells[4].innerText | 0,
             "选课属性" : row.cells[5].innerText,
