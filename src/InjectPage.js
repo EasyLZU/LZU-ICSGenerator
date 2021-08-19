@@ -4,7 +4,7 @@
  * @abstract 注入页面脚本
  * @exports modifyHTML, getDOMOfCal, downloadBlob
  * @license GPLv3
- * @version 2.1
+ * @version 2.2
  * @date 2021-08-05
  */
 
@@ -68,6 +68,64 @@ function makeTableColEditable (table, col) {
 }
 
 /**
+ * 阻止事件冒泡
+ * @param { Event } event 
+ */
+function stopEvent (event) {
+    event.preventDefault()
+    event.stopPropagation()
+}
+
+/**
+ * 处理注入元素的鼠标进入事件
+ * @param { Event } event 
+ */
+function mouseenterEventHandler (event) {
+    event.currentTarget.style.border = "1px dashed"
+    event.currentTarget.style.backgroundColor = "#fff"
+}
+
+/**
+ * 处理注入元素的鼠标离开事件
+ * @param { Event } event 
+ */
+function mouseleaveEventHandler (event) {
+    event.currentTarget.style.border = "1px none"
+    event.currentTarget.style.backgroundColor = ""
+}
+
+/**
+ * 处理注入元素的鼠标点击事件
+ * @param { Event } event 
+ */
+function mouseupEventHandler (event) {
+    if (event.button == 2) { // 鼠标右键
+        mouseleaveEventHandler(event)
+        stopEvent(event)
+        event.currentTarget.remove()
+    }
+}
+
+/**
+ * 注入课表时间列表项鼠标效果
+ * @param { NodeList } domList 列表项DOM的NodeList
+ */
+function enableHoverStyle (domList) {
+    for (const tr of domList) {
+        tr.addEventListener("mouseenter", mouseenterEventHandler)
+        tr.addEventListener("mouseleave", mouseleaveEventHandler)
+        tr.addEventListener("mouseup", mouseupEventHandler)
+        tr.addEventListener("contextmenu", stopEvent)
+        tr.setAttribute("title", "右键单击可删除该时间段")
+        tr
+            .parentElement
+            .parentElement
+            .parentElement
+            .addEventListener("contextmenu", stopEvent)
+    }
+}
+
+/**
  * 修改注入页面
  * @param { String } provider 功能提供者，用于渲染页面
  * @returns { HTMLInputElement } 新增的按钮
@@ -96,7 +154,7 @@ function modifyHTML (provider) {
     <table id="mapl-conf-content" class="broken_tab" cellspacing="0" cellpadding="0" style="display: none;">
         <tbody>
             <tr>
-                <td style="width: 25%;">请直接编辑下面表格中相应的<b>课程名称</b>进行修改<br><i>(只针对课表导出，不会影响教务系统实际内容)</i></td>
+                <td style="width: 25%;">请直接编辑下面表格中相应的<b>课程名称</b>进行修改<br>不需要导出的上课时间地点可<b>右键单击</b>进行删除<br><i>(只针对课表导出，不会影响教务系统实际内容)</i></td>
                 <td>
                     <input id="mapl-reload" type="submit" class="button" value="重 置">
                     <input id="mapl-export" class="button" type="submit" style="margin-left: 15px;width: 180px;" value="确定导出">
@@ -120,8 +178,11 @@ function modifyHTML (provider) {
         /* 启动课程名称修改功能 */
         makeTableColEditable(tableCourse, 2)
         const tableContent = tableCourse.innerHTML
+        /* 注入鼠标事件 */
+        enableHoverStyle(document.querySelectorAll("table.infolist_tab table tr"))
         reloadButton.addEventListener("click", (event) => {
             tableCourse.innerHTML = tableContent
+            enableHoverStyle(document.querySelectorAll("table.infolist_tab table tr"))
         })
     })
     /* 挂载导出按钮 */
