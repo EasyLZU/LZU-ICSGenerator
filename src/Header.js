@@ -6,4 +6,7 @@
 // @author       MaPl
 // @match        http://jwk.lzu.edu.cn/academic/student/currcourse/currcourse.jsdo*
 // @grant        none
+// @homepageURL  https://github.com/moeyork/LZU-ICSGenerator
+// @supportURL   https://github.com/moeyork/LZU-ICSGenerator/issues
+// @updateURL    https://raw.githubusercontent.com/moeyork/LZU-ICSGenerator/main/ICSGenerator.js
 // ==/UserScript==
