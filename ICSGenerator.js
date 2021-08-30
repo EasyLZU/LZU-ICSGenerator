@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         课表ICS生成(EasyLZU)
 // @namespace    https://easylzu.york.moe/
-// @version      2.2
+// @version      2.3
 // @description  兰州大学教务系统课表ICS日历文件生成
 // @author       MaPl
 // @match        http://jwk.lzu.edu.cn/academic/student/currcourse/currcourse.jsdo*
@@ -403,7 +403,7 @@ class ICSBlock extends Map {
  * @abstract ICS生成
  * @exports genICS
  * @license GPLv3
- * @version 1.1
+ * @version 1.2
  * @date 2021-08-05
  */
 
@@ -451,6 +451,24 @@ function genRRule (weeklist, weekday, lastDay) {
 }
 
 /**
+ * 时间Hash
+ * @param { Array[Number] } weeklist 周数列表
+ * @param { Number } weekday 在周几
+ * @param { Date } startTime 起始日期
+ * @returns { None | String } 时间Hash字符串
+ */
+ function genTimeHash (weeklist, weekday, startTime) {
+    const week = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"]
+    if (weeklist.length > 1) {
+        const a1 = weeklist[0]
+        const a2 = weeklist[1]
+        return (
+            `${a1}-${a2}-${a2-a1}`+
+            `${week[weekday % 7]}-${dateToText(startTime)}`)
+    }
+}
+
+/**
  * 在在校历Map中查找
  * @param { Map } map Map对象
  * @param { [Number, String] } key 待查找的Key
@@ -493,6 +511,11 @@ function getCourseDesp (Currcourse, Calendar, timeInfo) {
             weeklist,
             weekday,
             setDateWithHM(lastDay, "23:59")
+        ),
+        "timeHash": genTimeHash(
+            weeklist,
+            weekday,
+            setDateWithHM(firstDay, startTime)
         )
     }
 }
@@ -516,16 +539,18 @@ function genICS (Currcourse, Calendar) {
         for (const timeInfo of course["上课信息"]) { // 每个时间段
             if (!timeInfo.weeklist || !timeInfo.weekday || !timeInfo.lesson) {
                 // 课程时间不完整
+                console.dir(course["上课信息"])
                 continue
             }
             const {
                 start : startTime,
                 end : endTime,
-                rrule
+                rrule,
+                timeHash
             } = getCourseDesp(Currcourse, Calendar, timeInfo)
             const event = new ICSBlock("VEVENT", {
                 "UID" : (`${course["课程号"]}@${course["课程序号"]}`+
-                         "@EasyLZU@1.0"),
+                         "@EasyLZU@1.0@" + timeHash),
                 "DTSTAMP" : new Date(),
                 "STATUS" : "CONFIRMED",
                 "CLASS" : "PRIVATE",
