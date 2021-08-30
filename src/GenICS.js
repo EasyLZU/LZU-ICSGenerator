@@ -4,7 +4,7 @@
  * @abstract ICS生成
  * @exports genICS
  * @license GPLv3
- * @version 1.2
+ * @version 1.3
  * @date 2021-08-05
  */
 
@@ -66,6 +66,9 @@ function genRRule (weeklist, weekday, lastDay) {
         return (
             `${a1}-${a2}-${a2-a1}`+
             `${week[weekday % 7]}-${dateToText(startTime)}`)
+    } else {
+        console.info("use random time hash for uni event")
+        return Math.random().toString(36).slice(-8)
     }
 }
 
